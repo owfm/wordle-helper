@@ -18,6 +18,12 @@ const Home: NextPage = () => {
   const [firstGuessError, setFirstGuessError] = React.useState<boolean>(false);
   const [currentGlobalKnowledge, setCurrentGlobalKnowledge] = React.useState<Map<Letter, KnowledgeItem>>(generateInitialKnowledgeMap());
 
+  function restartGame() {
+    setGameState('start');
+    setGuesses([]);
+    setCurrentGlobalKnowledge(generateInitialKnowledgeMap())
+  }
+
   const setInitialGuess: React.FormEventHandler<HTMLFormElement> = () => {
     if (/^[a-z]{5}$/.test(firstWord.toLowerCase())) {
       setGuesses([firstWord.toLowerCase()]);
@@ -55,6 +61,10 @@ const Home: NextPage = () => {
 
         )
       }
+
+
+
+      <Submit style={{ marginTop: "25px" }} small onClick={restartGame}>restart</Submit>
     </Wrapper>
   )
 }
@@ -87,13 +97,14 @@ const AnswerSelector: React.FC<AnswerSelectorProps> = ({ setGuesses, word, curre
     }
   }
 
+
   const updateGlobalKnowledge = async () => {
 
     const updatedGlobalKnowledge = new Map(currentGlobalKnowledge);
 
     for (let idx of [0, 1, 2, 3, 4]) {
       if (thisWordKnowledge[idx as LetterIndices] === LetterState.CORRECT) {
-        updatedGlobalKnowledge.set(word[idx as LetterIndices], { state: LetterState.CORRECT, idx: idx as LetterIndices, notAtIdx: [] });
+        updatedGlobalKnowledge.set(word[idx as LetterIndices], { state: LetterState.CORRECT, idx: [], notAtIdx: [] });
         continue;
       }
       if (thisWordKnowledge[idx as LetterIndices] === LetterState.MISPLACED) {
@@ -106,11 +117,13 @@ const AnswerSelector: React.FC<AnswerSelectorProps> = ({ setGuesses, word, curre
         updatedGlobalKnowledge.set(word[idx as LetterIndices], { state: LetterState.MISPLACED, idx: null, notAtIdx: [idx as LetterIndices] })
         continue;
       }
-      if (thisWordKnowledge[idx as LetterIndices] === LetterState.WRONG) {
+      if (thisWordKnowledge[idx as LetterIndices] === LetterState.WRONG || thisWordKnowledge[idx as LetterIndices] === LetterState.UNKNOWN) {
         updatedGlobalKnowledge.set(word[idx as LetterIndices], { state: LetterState.WRONG, idx: null, notAtIdx: [] })
         continue;
       }
     }
+
+    console.log(updatedGlobalKnowledge);
 
     setCurrentGlobalKnowledge(updatedGlobalKnowledge); updatedGlobalKnowledge
 
@@ -131,6 +144,7 @@ const AnswerSelector: React.FC<AnswerSelectorProps> = ({ setGuesses, word, curre
       <SLetter data-idx={3} onClick={handleLetterClick} letterState={thisWordKnowledge[3]}>{word[3]}</SLetter>
       <SLetter data-idx={4} onClick={handleLetterClick} letterState={thisWordKnowledge[4]}>{word[4]}</SLetter>
       {latest && <Submit small={false} onClick={updateGlobalKnowledge} >get my next word</Submit>}
+
     </LettersWrapper>
   )
 }
@@ -143,7 +157,7 @@ const AnswerSelector: React.FC<AnswerSelectorProps> = ({ setGuesses, word, curre
 const generateInitialKnowledgeMap = (): Map<Letter, KnowledgeItem> => {
   const map = new Map<Letter, KnowledgeItem>();
   for (let letter of alphabet.split('')) {
-    map.set(letter, { state: LetterState.UNKNOWN, idx: null, notAtIdx: [] });
+    map.set(letter, { state: LetterState.UNKNOWN, idx: [], notAtIdx: [] });
   }
   return map;
 

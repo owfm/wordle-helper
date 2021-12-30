@@ -3,7 +3,7 @@ export type Letter = string;
 
 export interface KnowledgeItem {
     state: LetterState;
-    idx: number | null;
+    idx: number[];
     notAtIdx: number[];
 }
 export interface AnswerSelectorProps {
