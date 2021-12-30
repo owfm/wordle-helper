@@ -32,8 +32,6 @@ export default function handler(
     return false;
   });
 
-  console.log(misplacedLetters);
-
   const wrongLetters = knowledgeMap.filter(([_, knowledgeItem]) => {
     if (knowledgeItem.state === LetterState.WRONG) {
       return true;
@@ -61,9 +59,72 @@ export default function handler(
     return true;
   });
 
+  const knownLetterIdxs = correctLetters.map(
+    ([_, knowledgeItem]) => knowledgeItem.idx!
+  );
+
+  const letterWeights = calculateLetterWeights(possibleWords, knownLetterIdxs);
+
+  const wordWeights = calculateWordWeights(
+    letterWeights,
+    possibleWords,
+    knownLetterIdxs
+  );
+
+  const maxIndex = indexOfMax(wordWeights);
+
   if (possibleWords.length === 0) {
     res.status(400).json("No words found.");
   }
 
-  res.status(200).json({ word: sample(possibleWords)! });
+  res.status(200).json({ word: possibleWords[maxIndex] });
+}
+
+function calculateLetterWeights(words: string[], knownIndexes: number[]) {
+  const weights = {};
+  for (let word of words) {
+    for (let pos of [0, 1, 2, 3, 4]) {
+      if (pos in knownIndexes) continue;
+      if (!(pos in weights)) {
+        weights[pos] = {};
+      }
+      const letter = word.charAt(pos);
+      if (!(letter in weights[pos])) {
+        weights[pos][letter] = 0;
+      }
+      weights[pos][letter]++;
+    }
+  }
+  return weights;
+}
+
+function calculateWordWeights(weights, words, knownIndexes) {
+  const wordWeights = [];
+  for (let word of words) {
+    let thisWordWeight = 0;
+    for (let pos of [0, 1, 2, 3, 4]) {
+      if (pos in knownIndexes) continue;
+      thisWordWeight += weights[pos][word.charAt(pos)];
+    }
+    wordWeights.push(thisWordWeight);
+  }
+  return wordWeights;
+}
+
+function indexOfMax(arr) {
+  if (arr.length === 0) {
+    return -1;
+  }
+
+  var max = arr[0];
+  var maxIndex = 0;
+
+  for (var i = 1; i < arr.length; i++) {
+    if (arr[i] > max) {
+      maxIndex = i;
+      max = arr[i];
+    }
+  }
+
+  return maxIndex;
 }

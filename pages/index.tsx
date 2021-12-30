@@ -1,7 +1,6 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import React from 'react'
-import styled from 'styled-components'
 
 import { AnswerSelectorProps, KnowledgeItem, Letter, LetterIndices, LetterState } from '../models';
 import { Form, LettersWrapper, Letter as SLetter, Submit, Wrapper } from '../styles/styled';
