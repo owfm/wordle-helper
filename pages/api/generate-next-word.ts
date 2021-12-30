@@ -81,7 +81,7 @@ export default function handler(
 }
 
 function calculateLetterWeights(words: string[], knownIndexes: number[]) {
-  const weights = {};
+  const weights: Record<any, any> = {};
   for (let word of words) {
     for (let pos of [0, 1, 2, 3, 4]) {
       if (pos in knownIndexes) continue;
@@ -98,7 +98,11 @@ function calculateLetterWeights(words: string[], knownIndexes: number[]) {
   return weights;
 }
 
-function calculateWordWeights(weights, words, knownIndexes) {
+function calculateWordWeights(
+  weights: Record<any, any>,
+  words: string[],
+  knownIndexes: number[]
+) {
   const wordWeights = [];
   for (let word of words) {
     let thisWordWeight = 0;
@@ -111,7 +115,7 @@ function calculateWordWeights(weights, words, knownIndexes) {
   return wordWeights;
 }
 
-function indexOfMax(arr) {
+function indexOfMax(arr: number[]) {
   if (arr.length === 0) {
     return -1;
   }
